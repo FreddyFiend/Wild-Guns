@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bjtjab8f0n5rl"]
+
+[ext_resource type="Script" path="res://Line2D.gd" id="1_cr6r2"]
+
+[sub_resource type="Curve" id="Curve_g3idj"]
+bake_resolution = 1000
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="FrontWheel" type="Line2D"]
+width = 1.0
+width_curve = SubResource("Curve_g3idj")
+script = ExtResource("1_cr6r2")
