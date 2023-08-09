@@ -15,12 +15,21 @@ func _ready():
 func _process(delta):
 	global_position = Vector2.ZERO
 	global_rotation = 0
+	
+	var is_capped = false
+	
 	if(get_parent().traction < 0.2):
+		
+		begin_cap_mode = Line2D.LINE_CAP_ROUND
+		
 		rear_point = get_parent().rear_wheel
 		
 		add_point(rear_point)
 	else:
-		remove_point(-1)
+		end_cap_mode =
+		
+		clear_points()
+		#remove_point(-1)
 		
 	while get_point_count()> point_length:
 		remove_point(0)

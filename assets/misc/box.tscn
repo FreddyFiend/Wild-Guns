@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://hrwm51n6eofb"]
+
+[ext_resource type="Script" path="res://box.gd" id="1_fr3fy"]
+[ext_resource type="Texture2D" uid="uid://dyvdujl2asxqv" path="res://assets/misc/box.png" id="2_wuy0d"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jg2r1"]
+size = Vector2(16, 16)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qkssl"]
+polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[node name="Box" type="RigidBody2D" groups=["bodies"]]
+inertia = 4.0
+gravity_scale = 0.0
+linear_damp = 1.0
+script = ExtResource("1_fr3fy")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_wuy0d")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_jg2r1")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_qkssl")
+
+[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]

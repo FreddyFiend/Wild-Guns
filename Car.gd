@@ -1,5 +1,16 @@
 extends CharacterBody2D
 
+@onready var camera = $Camera2D
+@onready var headlight1 = $Headlight_1
+@onready var headlight2 = $Headlight_2
+@onready var _lines = get_parent().get_node("Lines")
+
+@onready var _front_left_wheel_line = Line2D
+@onready var _front_right_wheel_line = Line2D
+@onready var _rear_left_wheel_line = Line2D
+@onready var _rear_right_wheel_line = Line2D
+
+var is_drifting = false
 var active = false
 var car_zone = false
 var direction = Vector2.ZERO
@@ -11,7 +22,7 @@ var turn  = 0
 # This represents the player's inertia.
 var push = 100
 
-var engine_power = 800
+var engine_power = 400
 var braking = -450
 var max_speed_reverse =   250
 
@@ -21,52 +32,76 @@ var friction = -0.9
 var drag = -0.0015
 
 var wheel_base = 20
-var steering_angle = 15
+var steering_angle = 12
 var steer_direction =0
 
-var slip_speed = 300  # Speed where traction is reduced
+var slip_speed = 160  # Speed where traction is reduced
 var traction_fast = 0.1  # High-speed traction
 var traction_slow = 0.7  # Low-speed traction
 var traction = 0.7  # Low-speed traction
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	var lines= Line2D.new()
-	pass # Replace with function body.
+	pass
+	#var lines= Line2D.new()
+	
+	# Replace with function body.
+
+
+func add_drift_line():
+	_front_left_wheel_line = Line2D.new()
+	_front_right_wheel_line = Line2D.new()
+	_rear_left_wheel_line= Line2D.new()
+	_rear_right_wheel_line= Line2D.new()
+	
+	_front_left_wheel_line.width = 1
+	_front_right_wheel_line.width = 1
+	_rear_left_wheel_line.width = 1
+	_rear_right_wheel_line.width = 1
+	
+	_front_left_wheel_line.default_color = Color(255,255,255,0.6)
+	_front_right_wheel_line.default_color = Color(255,255,255,0.6)
+	_rear_left_wheel_line.default_color = Color(255,255,255,0.6)
+	_rear_right_wheel_line.default_color = Color(255,255,255,0.6)
+	
+	_lines.add_child(_front_left_wheel_line)
+	_lines.add_child(_front_right_wheel_line)
+	_lines.add_child(_rear_left_wheel_line)
+	_lines.add_child(_rear_right_wheel_line)
+
+func draw_drift_line():
+	_front_left_wheel_line.add_point(transform.origin - transform.y * 6 + transform.x * 10 )
+	_front_right_wheel_line.add_point(transform.origin - transform.y * -6 + transform.x * 10 )
+	_rear_left_wheel_line.add_point(transform.origin - transform.y * 6 + transform.x * -10 )
+	_rear_right_wheel_line.add_point(transform.origin - transform.y * -6 + transform.x * -10 )
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
 	acceleration =  Vector2.ZERO
 	var enter = Input.is_action_just_pressed("ui_text_newline")
+	headlight1.hide()
+	headlight2.hide()
 	if(active):
+		headlight1.show()	
+		headlight2.show()	
 		get_input(delta )
+		
 	apply_friction()
 	calculate_steering(delta)
 	velocity += acceleration * delta
 	
+	var drone =  0.7 -  velocity.length() / 1000 
+	
+	#print(drone)
+	camera.zoom = Vector2(drone, drone)
+	
+	apply_collision()
 	
 	
 	
-	for index in get_slide_collision_count():
-		#print(index)
-		var collision = get_slide_collision(index)
-		#print(-collision.get_normal() * velocity.length() *2)
-		#print(collision)
-	#	var collision = get_slide_collision(index)
-		#print(collision.get_collider().name)
-		if collision.get_collider().is_in_group("bodies"):
-			
-			#print('Flooooor')
-			#collision.get_collider().apply_central_impulse(velocity+ Vector2(5,5))
-	#		print('In the bodies')
-			collision.get_collider().apply_central_impulse(-collision.get_normal()* velocity.length() *0.8 )
-			#collision.collider.apply_central_impulse(-collision.normal * push)
-	#move_and_collide(velocity * delta)
-	#move_and_collide(velocity * delta, )
-
-	print(rotation)
-	#print(get_last_slide_collision())
+	
 	move_and_slide()
 
 
@@ -82,6 +117,32 @@ func _physics_process(delta):
 			active = false
 			
 	
+
+
+
+func apply_collision():
+	
+	for index in get_slide_collision_count():
+		#print(index)
+		var collision = get_slide_collision(index)
+		#print(-collision.get_normal() * velocity.length() *2)
+		#print(collision)
+	#	var collision = get_slide_collision(index)
+		#print(collision.get_collider().name)
+		if collision.get_collider().is_in_group("bodies"):
+			
+			#print('Flooooor')
+			#collision.get_collider().apply_central_impulse(velocity+ Vector2(5,5))
+	#		print('In the bodies')
+			collision.get_collider().apply_central_impulse(-collision.get_normal()* velocity.length() *0.8 )
+			acceleration -=  velocity * 8
+			
+			#collision.collider.apply_central_impulse(-collision.normal * push)
+	#move_and_collide(velocity * delta)
+	#move_and_collide(velocity * delta, )
+	#print(get_last_slide_collision())
+	
+
 
 func get_input(delta):
 	
@@ -112,8 +173,22 @@ func calculate_steering(delta):
 	var new_heading = (front_wheel - rear_wheel).normalized()
 	traction = traction_slow
 	
-	if velocity.length() > slip_speed:
+	
+	
+	if velocity.length() > slip_speed && turn:
+		
 		traction = traction_fast
+		
+	
+		
+		if(!is_drifting):
+			add_drift_line()
+			is_drifting = true
+		else: 
+			draw_drift_line()
+
+	else:
+		is_drifting = false
 		
 	var d = new_heading.dot(velocity.normalized())
 	if d > 0:

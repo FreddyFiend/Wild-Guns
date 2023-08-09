@@ -13,7 +13,6 @@ func _process(delta):
 	
 	if rotation > 3:
 		make_night()
-	print(color)
 	
 func make_night():
 

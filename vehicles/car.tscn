@@ -1,13 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://1b4yl5aanuqm"]
+[gd_scene load_steps=8 format=3 uid="uid://1b4yl5aanuqm"]
 
 [ext_resource type="Script" path="res://Car.gd" id="1_a8vlo"]
 [ext_resource type="Texture2D" uid="uid://m72gdds40xsp" path="res://assets/vehicles/yellowcar.png" id="2_qqiqc"]
 [ext_resource type="PackedScene" uid="uid://bjtjab8f0n5rl" path="res://line_2d.tscn" id="3_dr8v0"]
 [ext_resource type="PackedScene" uid="uid://dnlbtxginlu6x" path="res://back_wheel.tscn" id="4_yks2v"]
+[ext_resource type="Texture2D" uid="uid://b2ofdr800dt4y" path="res://assets/vehicles/headlights.png" id="5_ac3hr"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lg80a"]
-radius = 7.00005
-height = 29.9999
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o86if"]
+size = Vector2(13.9998, 30.0001)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kb6by"]
 radius = 19.0263
@@ -23,8 +23,9 @@ platform_on_leave = 2
 script = ExtResource("1_a8vlo")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(4.76837e-07, -2.38419e-07)
 rotation = 1.57079
-shape = SubResource("CapsuleShape2D_lg80a")
+shape = SubResource("RectangleShape2D_o86if")
 
 [node name="Area2D" type="Area2D" parent="."]
 
@@ -32,19 +33,35 @@ shape = SubResource("CapsuleShape2D_lg80a")
 shape = SubResource("CircleShape2D_kb6by")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.4, 0.4)
+zoom = Vector2(0.7, 0.7)
 process_callback = 0
-position_smoothing_enabled = true
-position_smoothing_speed = 10.0
 
 [node name="Yellowcar" type="Sprite2D" parent="." groups=["bodies"]]
 texture = ExtResource("2_qqiqc")
 
 [node name="Line2D" parent="." instance=ExtResource("3_dr8v0")]
+visible = false
 position = Vector2(0, -1)
 
 [node name="Line2D2" parent="." instance=ExtResource("4_yks2v")]
+visible = false
 position = Vector2(0, -1)
+
+[node name="Headlight_1" type="PointLight2D" parent="."]
+position = Vector2(86, -24)
+rotation = 1.309
+scale = Vector2(0.5, 0.5)
+energy = 0.3
+shadow_enabled = true
+texture = ExtResource("5_ac3hr")
+
+[node name="Headlight_2" type="PointLight2D" parent="."]
+position = Vector2(87, 24)
+rotation = 1.8326
+scale = Vector2(0.5, 0.5)
+energy = 0.3
+shadow_enabled = true
+texture = ExtResource("5_ac3hr")
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_exited" from="Area2D" to="." method="_on_area_2d_body_exited"]
